@@ -1,4 +1,14 @@
 {
+  "_comment": "Myocyte Properties Configuration - Defines CV/RP values for different exercise levels and ring sizes",
+  "_description": {
+    "cv": "Base Conduction Velocity in milliseconds (time for signal to travel between cells)",
+    "rp": "Base Refractory Period in milliseconds (recovery time after firing)",
+    "number_of_cells": "Configurations for different ring sizes (6, 10, 15 cells)",
+    "modes": "NoSympatheticActivation (normal) vs SympatheticActivation (stress/exercise)",
+    "activities": "rest, walking, jogging, sprinting - increasing heart rate",
+    "rates": "Multipliers applied to base cv/rp values. Lower rates = faster heart rate",
+    "healthy_vs_unhealthy": "Healthy cells fire normally, unhealthy/blocked cells have much longer RP (can trigger reentry)"
+  },
   "cv":65,
   "rp":650,
   "number_of_cells":[

@@ -1,3 +1,21 @@
+/**
+ * iMyocyte Application Styles
+ *
+ * This stylesheet contains:
+ * 1. Base styles and typography
+ * 2. Material Design color utilities (red variants for cell states)
+ * 3. Button styles and states
+ * 4. Animation for cell firing (red flash)
+ * 5. Location mode draggable dot styles
+ * 6. Overlay dimming for refractory period visualization
+ *
+ * Key visual feedback:
+ * - Red background: Cell is excited (firing)
+ * - Gray overlay (dimmed): Cell is in refractory period
+ * - Darker red overlay (dimmedDarker): Cell received signal during refractory period
+ */
+
+/* Base styles */
 :root {
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -5,7 +23,7 @@
     -moz-osx-font-smoothing: grayscale;
     height: 1500px;
   }
-  
+
   body {
     margin: 0;
     padding: 2rem;
@@ -13,10 +31,12 @@
     min-height: 100vh;
     background-color: var(--surface-card);
   }
-  
+
   h1 {
     margin-top: 0;
   }
+
+/* Material Design Red Color Utilities - Used for cell state visualization */
 
   .materialize-red {
     background-color: #e51c23 !important;
@@ -782,23 +802,28 @@
     margin: 10px 15px;
   }
 
+/* ========================================
+   CUSTOM STYLES FOR IMYOCYTE SIMULATION
+   ======================================== */
 
+/* Cell Firing Animation - Red flash when cell fires (excited state) */
   .animation_background_test{
     height:100px;
     -webkit-animation-name: animation;
     -webkit-animation-duration: 2s;
     -webkit-animation-timing-function: ease-in-out;
-    -webkit-animation-iteration-count: infinite;    
+    -webkit-animation-iteration-count: infinite;
     -webkit-animation-play-state: running;
-    
+
     animation-name: animation;
     animation-duration: 2s;
     animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;    
+    animation-iteration-count: infinite;
     animation-play-state: running;
     background-color: #f00;
 }
 
+/* Keyframes for red pulsing animation */
 @-webkit-keyframes animation {
     0%     {background-color:red;}
     50.0%  {background-color:#ff9999;}
@@ -811,6 +836,9 @@
     100.0%  {background-color:red;}
 }
 
+/* Location Mode - Draggable Dot Interface */
+
+/* Inner white box - defines the draggable area */
 #locationinnerbox{
   width: 260px;
   height:  260px;
@@ -821,6 +849,8 @@
   border-radius: 15px;
   z-index:1;
 }
+
+/* Outer dark box - container for the draggable area */
 #locationbox {
   width: 280px;
   height: 280px;
@@ -836,6 +866,8 @@
   box-sizing: border-box;
   z-index:0;
 }
+
+/* Draggable dot - represents cell position */
 #locationdot {
   width: 25px;
   height: 25px;
@@ -847,14 +879,21 @@
 
   z-index:10;
 }
+
+/* Dot active state - when being dragged */
 #locationdot:active {
   background-color: rgba(168, 218, 220, 1.00);
 }
+
+/* Dot hover state */
 #locationdot:hover {
   cursor: pointer;
   border: 5px solid rgba(0, 218, 136, .5);
 }
 
+/* Refractory Period Overlays */
+
+/* Gray overlay - indicates cell is in refractory period (cannot fire) */
 .dimmed {
   opacity: 0.3;
 }
@@ -871,6 +910,7 @@
   background: rgba(0, 0, 0, 0.5);
 }
 
+/* Darker red overlay - indicates signal received during refractory period */
 .dimmedDarker {
   opacity: 0.7;
 }
