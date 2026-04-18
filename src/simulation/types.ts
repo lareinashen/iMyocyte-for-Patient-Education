@@ -50,7 +50,11 @@ export interface SimulationState {
   currentDamagedRp: number;
 }
 
-export type ScenarioId = 'normal' | 'reentry';
+export type ScenarioId =
+  | 'normal'
+  | 'reentry'
+  | 'reentry-ablation'
+  | 'reentry-drug';
 
 export interface PacingEvent {
   /** Tick at which to deliver the stimulus. */
@@ -59,8 +63,20 @@ export interface PacingEvent {
   siteIndex: number;
 }
 
+export type TreatmentKind = 'ablation' | 'drug';
+
+export interface TreatmentEvent {
+  /** Tick at which to apply the treatment. */
+  atTick: number;
+  kind: TreatmentKind;
+  /** For ablation: index of the cell to ablate. Ignored for drug. */
+  targetIndex?: number;
+}
+
 export interface Scenario {
   id: ScenarioId;
   config: RingConfig;
   events: PacingEvent[];
+  /** Scheduled treatments applied automatically while the scenario runs. */
+  treatments?: TreatmentEvent[];
 }

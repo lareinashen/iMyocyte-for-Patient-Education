@@ -6,7 +6,7 @@
  * and a legend.
  */
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { RingSimulation } from './components/RingSimulation';
 import { Controls } from './components/Controls';
 import { Legend } from './components/Legend';
@@ -18,16 +18,23 @@ import type { ScenarioId } from './simulation/types';
 
 function ScenarioDescription({ id }: { id: ScenarioId }) {
   const { t } = useI18n();
-  return (
-    <p className="description">
-      {id === 'reentry' ? t.reentryDescription : t.normalDescription}
-    </p>
-  );
+  switch (id) {
+    case 'reentry':
+      return <p className="description">{t.reentryDescription}</p>;
+    case 'reentry-ablation':
+      return <p className="description">{t.reentryAblationDescription}</p>;
+    case 'reentry-drug':
+      return <p className="description">{t.reentryDrugDescription}</p>;
+    case 'normal':
+    default:
+      return <p className="description">{t.normalDescription}</p>;
+  }
 }
 
 export default function App() {
   const { t } = useI18n();
   const sim = useRingSimulation();
+  const [showHeart, setShowHeart] = useState(false);
 
   // Start the iframe auto-resize notifier once on mount.
   useEffect(() => {
@@ -35,29 +42,13 @@ export default function App() {
     return stop;
   }, []);
 
-  const handleAblate = useCallback(() => {
-    // Ablate the first non-ablated damaged cell.
-    const { config, cells } = sim.state;
-    for (let k = 0; k < config.damagedLength; k += 1) {
-      const idx = (config.damagedStart + k) % config.cellCount;
-      if (cells[idx].state !== 'ablated') {
-        sim.ablate(idx);
-        return;
-      }
-    }
-  }, [sim]);
-
-  const handleCellClick = useCallback(
-    (index: number) => {
-      if (sim.scenarioId !== 'reentry') return;
-      sim.ablate(index);
-    },
-    [sim],
-  );
-
   const handleTogglePlay = useCallback(() => {
     sim.setPlaying(!sim.isRunning);
   }, [sim]);
+
+  const handleToggleHeart = useCallback(() => {
+    setShowHeart((v) => !v);
+  }, []);
 
   return (
     <div className="app">
@@ -72,8 +63,8 @@ export default function App() {
       <section className="ring-panel" aria-live="polite">
         <RingSimulation
           state={sim.state}
-          onCellClick={handleCellClick}
-          interactive={sim.scenarioId === 'reentry'}
+          animation={sim.animation}
+          showHeart={showHeart}
         />
         <ScenarioDescription id={sim.scenarioId} />
       </section>
@@ -81,15 +72,12 @@ export default function App() {
       <aside>
         <Controls
           scenarioId={sim.scenarioId}
-          state={sim.state}
           isRunning={sim.isRunning}
-          drugApplied={sim.drugApplied}
-          ablationCount={sim.ablationCount}
+          showHeart={showHeart}
           onRun={sim.runScenario}
           onReset={sim.reset}
           onTogglePlay={handleTogglePlay}
-          onAblate={handleAblate}
-          onAddDrug={sim.addDrug}
+          onToggleHeart={handleToggleHeart}
         />
         <Legend />
       </aside>

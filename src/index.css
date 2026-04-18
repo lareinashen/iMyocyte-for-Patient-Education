@@ -198,9 +198,129 @@ footer.app-footer {
   border: 0;
 }
 
+/* Treatment animation overlays. Each element enters from the right,
+   lands on its target (damaged cell for ablation, ring centre for drug),
+   and fades out. `--tx` / `--ty` are supplied as inline style and are the
+   final landing position in the SVG viewBox. */
+
+.treatment-bolt {
+  transform-box: fill-box;
+  animation: treatment-bolt 1200ms ease-out forwards;
+}
+
+@keyframes treatment-bolt {
+  0% {
+    transform: translate(calc(var(--tx) + 240px), var(--ty)) scale(0.6)
+      rotate(-18deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  55% {
+    transform: translate(var(--tx), var(--ty)) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(var(--tx), var(--ty)) scale(1.35) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(1) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+.treatment-pill {
+  transform-box: fill-box;
+  animation: treatment-pill 1300ms ease-out forwards;
+}
+
+@keyframes treatment-pill {
+  0% {
+    transform: translate(calc(var(--tx) + 240px), var(--ty)) rotate(-14deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  55% {
+    transform: translate(var(--tx), var(--ty)) rotate(0deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translate(var(--tx), var(--ty)) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(0deg) scale(0.75);
+    opacity: 0;
+  }
+}
+
+.treatment-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: treatment-pulse 1400ms ease-out forwards;
+  animation-delay: 700ms;
+}
+
+@keyframes treatment-pulse {
+  0% {
+    transform: scale(8);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(160);
+    opacity: 0;
+  }
+}
+
+/* Ablation impact: a cell flashes larger at the moment the bolt lands,
+   then settles to a permanently smaller "scar" size. The delay is tuned
+   to match the bolt's landing (~660ms into its 1200ms keyframe). */
+
+.cell-ablation-impact {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cell-ablation-impact 800ms ease-out 500ms forwards;
+}
+
+@keyframes cell-ablation-impact {
+  0% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.55);
+  }
+  45% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.6);
+  }
+}
+
+/* Permanent scar rendering applied to an ablated cell once its impact
+   animation has cleared. Matches the final scale of the impact keyframe
+   so there is no visual pop when the class swap happens. */
+
+.cell-scarred {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0.6);
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
     animation: none !important;
+  }
+  .cell-scarred,
+  .cell-ablation-impact {
+    transform: scale(0.6);
   }
 }

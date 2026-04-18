@@ -19,10 +19,19 @@ function runScenario(scenarioId: ScenarioId, ticks: number): SimulationState {
   const scenario = getScenario(scenarioId);
   const state = createInitialState(scenario.config);
   const events = [...scenario.events];
+  const treatments = [...(scenario.treatments ?? [])];
   for (let t = 0; t < ticks; t += 1) {
     while (events.length > 0 && events[0].atTick === state.tick) {
       const ev = events.shift()!;
       stimulate(state, ev.siteIndex);
+    }
+    while (treatments.length > 0 && treatments[0].atTick === state.tick) {
+      const tr = treatments.shift()!;
+      if (tr.kind === 'ablation' && tr.targetIndex !== undefined) {
+        ablateCell(state, tr.targetIndex);
+      } else if (tr.kind === 'drug') {
+        applyDrug(state);
+      }
     }
     step(state);
   }
@@ -113,6 +122,45 @@ describe('ringModel — drug treatment', () => {
       }
       step(state);
     }
+    expect(hasActivity(state)).toBe(false);
+  });
+});
+
+describe('ringModel — bundled treatment scenarios', () => {
+  it('reentry-ablation schedules ablation on the damaged cell', () => {
+    const scenario = getScenario('reentry-ablation');
+    expect(scenario.treatments).toBeDefined();
+    expect(scenario.treatments).toHaveLength(1);
+    expect(scenario.treatments![0].kind).toBe('ablation');
+    expect(scenario.treatments![0].targetIndex).toBe(
+      REENTRY_CONFIG.damagedStart,
+    );
+  });
+
+  it('reentry-drug schedules a drug event', () => {
+    const scenario = getScenario('reentry-drug');
+    expect(scenario.treatments).toBeDefined();
+    expect(scenario.treatments).toHaveLength(1);
+    expect(scenario.treatments![0].kind).toBe('drug');
+  });
+
+  it('reentry-ablation has active reentry before treatment', () => {
+    const state = runScenario('reentry-ablation', 15);
+    expect(hasActivity(state)).toBe(true);
+  });
+
+  it('reentry-ablation terminates reentry after the scheduled treatment', () => {
+    const state = runScenario('reentry-ablation', 200);
+    expect(hasActivity(state)).toBe(false);
+  });
+
+  it('reentry-drug has active reentry before treatment', () => {
+    const state = runScenario('reentry-drug', 15);
+    expect(hasActivity(state)).toBe(true);
+  });
+
+  it('reentry-drug terminates reentry after the scheduled treatment', () => {
+    const state = runScenario('reentry-drug', 200);
     expect(hasActivity(state)).toBe(false);
   });
 });

@@ -27,6 +27,13 @@ export const PACING_SITE = 0;
 /** S1–S2 coupling interval for reentry induction, in ticks. */
 export const REENTRY_S1_S2_INTERVAL = 5;
 
+/**
+ * Tick at which a bundled scenario auto-applies its treatment. Chosen so
+ * that the viewer sees the reentry loop establish (S1+S2) and circulate
+ * for roughly one to one-and-a-half laps before the intervention fires.
+ */
+export const TREATMENT_TICK = 20;
+
 const BASE_CONFIG: Omit<RingConfig, 'damagedStart' | 'damagedLength'> = {
   cellCount: 12,
   excitedDuration: 1,
@@ -53,6 +60,11 @@ export const REENTRY_CONFIG: RingConfig = {
 /** Kept for compatibility with the rest of the app; matches the active scenario's config. */
 export const DEFAULT_CONFIG: RingConfig = NORMAL_CONFIG;
 
+const REENTRY_EVENTS = [
+  { atTick: 0, siteIndex: PACING_SITE },
+  { atTick: REENTRY_S1_S2_INTERVAL, siteIndex: PACING_SITE },
+];
+
 export function getScenario(id: ScenarioId): Scenario {
   switch (id) {
     case 'normal':
@@ -65,10 +77,27 @@ export function getScenario(id: ScenarioId): Scenario {
       return {
         id,
         config: REENTRY_CONFIG,
-        events: [
-          { atTick: 0, siteIndex: PACING_SITE },
-          { atTick: REENTRY_S1_S2_INTERVAL, siteIndex: PACING_SITE },
+        events: REENTRY_EVENTS.map((e) => ({ ...e })),
+      };
+    case 'reentry-ablation':
+      return {
+        id,
+        config: REENTRY_CONFIG,
+        events: REENTRY_EVENTS.map((e) => ({ ...e })),
+        treatments: [
+          {
+            atTick: TREATMENT_TICK,
+            kind: 'ablation',
+            targetIndex: REENTRY_CONFIG.damagedStart,
+          },
         ],
+      };
+    case 'reentry-drug':
+      return {
+        id,
+        config: REENTRY_CONFIG,
+        events: REENTRY_EVENTS.map((e) => ({ ...e })),
+        treatments: [{ atTick: TREATMENT_TICK, kind: 'drug' }],
       };
   }
 }

@@ -31,6 +31,27 @@ export function Legend() {
         {ITEMS.map((item) => (
           <li key={item.key}>
             <svg width={18} height={18} aria-hidden="true">
+              {item.key === 'damaged' ? (
+                <defs>
+                  <pattern
+                    id="legend-damaged-hatch"
+                    width={3}
+                    height={3}
+                    patternUnits="userSpaceOnUse"
+                    patternTransform="rotate(45)"
+                  >
+                    <line
+                      x1={0}
+                      y1={0}
+                      x2={0}
+                      y2={3}
+                      stroke="#c2185b"
+                      strokeWidth={1}
+                      strokeOpacity={0.7}
+                    />
+                  </pattern>
+                </defs>
+              ) : null}
               <circle
                 cx={9}
                 cy={9}
@@ -39,6 +60,15 @@ export function Legend() {
                 stroke={item.stroke}
                 strokeWidth={item.strokeWidth}
               />
+              {item.key === 'damaged' ? (
+                <circle
+                  cx={9}
+                  cy={9}
+                  r={7}
+                  fill="url(#legend-damaged-hatch)"
+                  stroke="none"
+                />
+              ) : null}
             </svg>
             <span>{labels[item.key]}</span>
           </li>

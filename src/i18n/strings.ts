@@ -14,27 +14,23 @@ export const en = {
   scenarioLabel: 'Scenario',
   scenarioNormal: 'Normal conduction',
   scenarioReentry: 'Reentry',
+  scenarioReentryAblation: 'Reentry + ablation',
+  scenarioReentryDrug: 'Reentry + drug',
 
   normalDescription:
     'A single electrical pulse spreads in both directions around the ring. The two waves meet on the far side and cancel out. This is normal heart conduction.',
   reentryDescription:
     'Two closely spaced pulses are delivered. Because the damaged tissue takes longer to recover after the first wave, it blocks the second wave in that direction. The second wave ends up travelling around the ring unidirectionally in a loop that becomes sustained; this is reentry, and it can cause an abnormal heart rhythm.',
+  reentryAblationDescription:
+    'Reentry is induced as before. After a few seconds, a targeted energy pulse (ablation) destroys the damaged cell. The circulating wave hits the ablated spot and the loop is broken.',
+  reentryDrugDescription:
+    'Reentry is induced as before. After a few seconds, a medication is delivered that lengthens how long each cell needs to recover. The circulating wave catches up to tissue that is still recovering from its last beat and stops.',
 
-  treatmentHeading: 'Treatment',
-  treatmentIntro:
-    'Once the reentry loop has been initiated, try a treatment to see how it affects the wave.',
-  ablateButton: 'Ablate damaged cell',
-  ablateHint: 'Ablation: physically destroys cells in the damaged tissue, preventing them from firing.',
-  drugButton: 'Add drug',
-  drugHint:
-    'Drug: lengthens how long each cell needs to recover after firing.',
-  drugNote:
-    'With a longer recovery time, the wave travelling around the ring catches up to tissue that is still recovering from its last beat, stopping reentry.',
-  runButton: 'Run scenario',
   resetButton: 'Reset',
   pauseButton: 'Pause',
   playButton: 'Play',
-  speedLabel: 'Speed',
+  showHeartButton: 'Show in heart',
+  hideHeartButton: 'Hide heart',
 
   legendHeading: 'Legend',
   legendHealthy: 'Healthy cell',
@@ -57,36 +53,30 @@ export const en = {
 export type Strings = { [K in keyof typeof en]: string };
 
 export const fr: Strings = {
-  appTitle: 'Réentrée cardiaque — origine et traitement',
+  appTitle: 'Réentrée cardiaque: origine et traitement',
   appIntro:
-    'Cette animation montre un anneau de cellules du muscle cardiaque. Observez comment une onde électrique se propage dans un tissu sain et comment une zone endommagée peut piéger l’onde en boucle — un phénomène appelé réentrée.',
+    'Cette animation montre un anneau de cellules du muscle cardiaque. Observez comment une onde électrique se propage dans un tissu sain et comment une zone endommagée peut piéger l’onde en boucle, un phénomène appelé réentrée.',
 
   scenarioLabel: 'Scénario',
   scenarioNormal: 'Conduction normale',
   scenarioReentry: 'Réentrée',
+  scenarioReentryAblation: 'Réentrée + ablation',
+  scenarioReentryDrug: 'Réentrée + médicament',
 
   normalDescription:
     'Une seule impulsion électrique se propage dans les deux sens autour de l’anneau. Les deux ondes se rencontrent de l’autre côté et s’annulent. C’est la conduction normale du cœur.',
   reentryDescription:
-    'Deux impulsions rapprochées sont délivrées. Comme une partie du tissu est endommagée et met plus de temps à récupérer, une direction est bloquée alors que l’autre conduit encore. L’onde se met à circuler en boucle autour de l’anneau sans s’arrêter — cette boucle entretenue est la réentrée, et elle peut causer un rythme cardiaque anormal.',
+    'Deux impulsions rapprochées sont délivrées. Comme une partie du tissu est endommagée et met plus de temps à récupérer, une direction est bloquée alors que l’autre conduit encore. L’onde se met à circuler en boucle autour de l’anneau sans s’arrêter; cette boucle entretenue est la réentrée, et elle peut causer un rythme cardiaque anormal.',
+  reentryAblationDescription:
+    'La réentrée est induite comme précédemment. Après quelques secondes, une impulsion d’énergie ciblée (ablation) détruit la cellule endommagée. L’onde qui circule atteint la zone détruite et la boucle est rompue.',
+  reentryDrugDescription:
+    'La réentrée est induite comme précédemment. Après quelques secondes, un médicament est administré; il allonge le temps dont chaque cellule a besoin pour récupérer. L’onde qui tourne rattrape du tissu encore en récupération et s’arrête.',
 
-  treatmentHeading: 'Traitement',
-  treatmentIntro:
-    'Une fois la réentrée établie, essayez un traitement pour voir son effet sur l’onde qui circule.',
-  ablateButton: 'Abler une cellule endommagée',
-  ablateHint:
-    'Bloque physiquement une cellule de la zone endommagée pour rompre la boucle.',
-  drugButton: 'Ajouter un médicament',
-  drugHint:
-    'Allonge le temps que chaque cellule met à récupérer après s’être activée. L’onde qui revient arrive alors sur du tissu encore en récupération et s’arrête.',
-  drugNote:
-    'Avec un temps de récupération plus long, l’onde qui tourne autour de l’anneau rattrape du tissu qui n’a pas encore fini de récupérer de sa dernière activation — elle ne peut donc plus progresser, et la réentrée cesse.',
-
-  runButton: 'Lancer le scénario',
   resetButton: 'Réinitialiser',
   pauseButton: 'Pause',
   playButton: 'Lecture',
-  speedLabel: 'Vitesse',
+  showHeartButton: 'Afficher dans le cœur',
+  hideHeartButton: 'Masquer le cœur',
 
   legendHeading: 'Légende',
   legendHealthy: 'Cellule saine',

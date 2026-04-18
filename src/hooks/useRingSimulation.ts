@@ -21,10 +21,26 @@ import type {
   PacingEvent,
   ScenarioId,
   SimulationState,
+  TreatmentEvent,
+  TreatmentKind,
 } from '../simulation/types';
 
 /** Real-time milliseconds per simulation tick. Lower = faster animation. */
-const MS_PER_TICK_DEFAULT = 250;
+const MS_PER_TICK_DEFAULT = 400;
+
+/** Approx. lifetime of the overlay SVG in the DOM (matches CSS keyframes). */
+const ANIMATION_CLEAR_MS = 1500;
+
+/**
+ * Visual trigger emitted when a scheduled treatment fires. `id` is a
+ * monotonically increasing counter so that re-triggering the same
+ * treatment forces the overlay to remount and replay its animation.
+ */
+export interface TreatmentAnimation {
+  id: number;
+  kind: TreatmentKind;
+  targetIndex?: number;
+}
 
 interface UseRingSimulationResult {
   state: SimulationState;
@@ -33,19 +49,17 @@ interface UseRingSimulationResult {
   runScenario: (id: ScenarioId) => void;
   reset: () => void;
   setPlaying: (playing: boolean) => void;
-  ablate: (index: number) => void;
-  addDrug: () => void;
-  drugApplied: boolean;
-  ablationCount: number;
+  animation: TreatmentAnimation | null;
 }
 
 export function useRingSimulation(): UseRingSimulationResult {
   const stateRef = useRef<SimulationState>(createInitialState(NORMAL_CONFIG));
   const pendingEventsRef = useRef<PacingEvent[]>([]);
+  const pendingTreatmentsRef = useRef<TreatmentEvent[]>([]);
+  const animationIdRef = useRef(0);
   const [scenarioId, setScenarioId] = useState<ScenarioId>('normal');
   const [isRunning, setIsRunning] = useState(false);
-  const [drugApplied, setDrugApplied] = useState(false);
-  const [ablationCount, setAblationCount] = useState(0);
+  const [animation, setAnimation] = useState<TreatmentAnimation | null>(null);
   const [, bumpVersion] = useState(0);
 
   const forceRender = useCallback(() => bumpVersion((v) => v + 1), []);
@@ -73,6 +87,25 @@ export function useRingSimulation(): UseRingSimulationResult {
           stimulate(s, ev.siteIndex);
           eventFired = true;
         }
+        // Scheduled treatments fire on their tick and trigger the matching
+        // overlay animation. They do not replace the step on that tick.
+        while (
+          pendingTreatmentsRef.current.length > 0 &&
+          pendingTreatmentsRef.current[0].atTick === s.tick
+        ) {
+          const tr = pendingTreatmentsRef.current.shift()!;
+          if (tr.kind === 'ablation' && tr.targetIndex !== undefined) {
+            ablateCell(s, tr.targetIndex);
+          } else if (tr.kind === 'drug') {
+            applyDrug(s);
+          }
+          animationIdRef.current += 1;
+          setAnimation({
+            id: animationIdRef.current,
+            kind: tr.kind,
+            targetIndex: tr.targetIndex,
+          });
+        }
         // On a tick that fires a pacing event, render the stimulated state
         // without propagating — so viewers see the initiating cell light up
         // alone before the wave spreads to its neighbours on the next tick.
@@ -96,8 +129,8 @@ export function useRingSimulation(): UseRingSimulationResult {
     const scenario = getScenario(scenarioId);
     stateRef.current = createInitialState(scenario.config);
     pendingEventsRef.current = [];
-    setDrugApplied(false);
-    setAblationCount(0);
+    pendingTreatmentsRef.current = [];
+    setAnimation(null);
     setIsRunning(false);
     forceRender();
   }, [forceRender, scenarioId]);
@@ -108,9 +141,11 @@ export function useRingSimulation(): UseRingSimulationResult {
       stateRef.current = createInitialState(scenario.config);
       // Events store absolute tick indices, which start from 0 on a fresh state.
       pendingEventsRef.current = scenario.events.map((e) => ({ ...e }));
+      pendingTreatmentsRef.current = (scenario.treatments ?? []).map((t) => ({
+        ...t,
+      }));
       setScenarioId(id);
-      setDrugApplied(false);
-      setAblationCount(0);
+      setAnimation(null);
       setIsRunning(true);
       forceRender();
     },
@@ -121,26 +156,23 @@ export function useRingSimulation(): UseRingSimulationResult {
     setIsRunning(playing);
   }, []);
 
-  const ablate = useCallback(
-    (index: number) => {
-      ablateCell(stateRef.current, index);
-      setAblationCount((n) => n + 1);
-      forceRender();
-    },
-    [forceRender],
-  );
-
-  const addDrug = useCallback(() => {
-    applyDrug(stateRef.current);
-    setDrugApplied(true);
-    forceRender();
-  }, [forceRender]);
+  // Auto-clear the animation flag after the overlay finishes so the DOM
+  // stays clean between scenarios.
+  useEffect(() => {
+    if (!animation) return;
+    const id = setTimeout(() => setAnimation(null), ANIMATION_CLEAR_MS);
+    return () => clearTimeout(id);
+  }, [animation]);
 
   // Auto-pause when a scenario has quiesced to save CPU for embedded pages.
   useEffect(() => {
     if (!isRunning) return;
     const id = setInterval(() => {
-      if (!hasActivity(stateRef.current) && pendingEventsRef.current.length === 0) {
+      if (
+        !hasActivity(stateRef.current) &&
+        pendingEventsRef.current.length === 0 &&
+        pendingTreatmentsRef.current.length === 0
+      ) {
         // Give a short grace period to let any trailing refractory
         // transitions settle, then stop the loop.
         setIsRunning(false);
@@ -156,9 +188,6 @@ export function useRingSimulation(): UseRingSimulationResult {
     runScenario,
     reset,
     setPlaying,
-    ablate,
-    addDrug,
-    drugApplied,
-    ablationCount,
+    animation,
   };
 }
