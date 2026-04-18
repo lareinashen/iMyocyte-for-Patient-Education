@@ -1,6 +1,12 @@
 # Dependencies
 node_modules/
 
+node_modules
+dist
+.DS_Store
+.env
+.env.local
+
 # Build output
 dist/
 build/
